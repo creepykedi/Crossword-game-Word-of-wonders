@@ -11,7 +11,7 @@ with open('wordlist.txt', 'r') as myfile:
 mlist = mwords.split()
 
 
-# clue generator with words >6 chars
+# clue word generator with words >6 chars
 listlength = len(mlist)
 clue = []
 while len(clue) < 6:
@@ -25,13 +25,9 @@ alphabet = 'abcdefghijklmnopqrstvwuxyz'
 # making list of all the letters that are NOT in clue word
 for letter in clue:
     alphabet = alphabet.replace(letter, '')
-#print(alphabet)
-#print(len(alphabet))
 
 # checking how many of each letter clue word has
-table = []
-for letter in clue_letters:
-    table.append(clue_letters.count(letter))
+table = [clue_letters.count(letter) for letter in clue_letters]
 
 # words as part of riddle will be added here
 riddlewords = []
@@ -43,7 +39,7 @@ for word in mlist:
     add = True
     for letter in alphabet:
         if letter in word:
-            # if they do boolean value is set to false
+            # if they do, boolean value is set to false
             add = False
     # if they don't then add the word with matching index
     if add:
@@ -82,7 +78,7 @@ repeatedLettersRiddle = []
 riddlewords2 = []
 
 # if we have repeated letters in clue, this function runs
-# checks if repeated letters in clue words and the one from list coincide
+# checks if repeated letters in clue words coincide with the one from list
 # if they do, the word is added to new list
 if len(repeatedLettersClue) > 0:
     for word in riddlewords:
@@ -148,22 +144,17 @@ for i in range(4):
     play.append(riddlewords1[random.randint(0, maximum-1)])
 # deleting any repeated words
     play = list(set(play))
-# if less than 4 words adding one more
+# if less than 4 words, add one more
 while len(play) < 3:
     play.append(riddlewords1[random.randint(0, maximum - 1)])
 
-#print(clue)
-#print(play)
+
 print('Welcome to Word of Wonders game!')
 print('Good luck!')
 print('\n'*5)
 print("Find all words in crossword which contain these letters:")
 # printing the random letters to make up the clue word from
 print(' '.join(random.sample(clue, len(clue))).upper())
-
-
-
-
 
 clueguessed = [clue]
 play.append(clue)
@@ -177,10 +168,10 @@ for word in play:
 print(playwords)
 print('\n')
 
-#for word in playwords:
-   # print(word)
+
 hintnum = random.randint(2, len(play[0]))
 remaining_letters = len(play[0]) - hintnum
+
 def guessGame():
 
     guess = input('Find a word\n')
@@ -214,4 +205,3 @@ while len(play) != 0:
     guessGame()
 else:
     print('You won! Congrats!')
-
