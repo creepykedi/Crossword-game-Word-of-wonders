@@ -4,14 +4,12 @@
 from collections import Counter
 import random
 
-alphabet = 'abcdefghijklmnopqrstvwuxyz'
 
 class GamePrep:
-    def __init__(self, filename, alphabet, difficulty=2):
+    def __init__(self, filename, alphabet):
         self.filename = filename
         self.alphabet = alphabet
         self.clue = []
-        self.difficulty = difficulty
         self.words = ""
         self.clue_letters = None
         self.mlist = []
@@ -27,6 +25,7 @@ class GamePrep:
         self.play = []
 
     def generate_word_set(self):
+        """Generate words to start a game with"""
         def generate_clue():
             """ clue word generator with words >6 chars """
             self.mlist = self.words.split()
@@ -35,7 +34,7 @@ class GamePrep:
                 rand = random.randint(0, listlength)
                 self.clue = self.mlist[rand]
                 if '-' in self.clue:
-                    self.generate_word_set()
+                    generate_clue()
             self.clue_letters = (list(self.clue))
             return self.clue, self.clue_letters, self.mlist
 
@@ -47,51 +46,38 @@ class GamePrep:
         def open_dictionary():
             """ Opens file to use as a dictionary for game"""
             with open(self.filename, 'r') as myfile:
-                # passing all words as string to words variable
                 self.words = myfile.read()
                 return self.words
 
         def make_table():
-            # checking how many of each letter clue word has
             self.table = [self.clue_letters.count(letter) for letter in self.clue_letters]
 
         def get_possible_riddlewords():
+            """if word has any of the letters that clue word doesnt, drop it, else adding to riddlewords"""
             for word in self.mlist:
                 self.add = True
-                # checking if word has any of the letters it shouldn't have
                 for letter in self.restrict_letters:
                     if letter in word:
-                        # if they do, boolean value is set to false
                         self.add = False
-                # if they don't then add the word with matching index
                 if self.add:
                     self.riddlewords.append(word)
             return self.riddlewords
 
         def count_clue_letters():
-            """ check how many of each letter the clue word has
-             to remove from riddlewords ones with extra letters"""
+            """ check how many of each letter the clue word has"""
             self.clueDict = Counter(self.clue)
             return self.clueDict
 
-        # looking for repeating letters in clue word
-        # this function will add all repeated letters from clue word to the list above
-
         def clue_repeated_letters():
+            """add all repeating letters from clue word to a list"""
             for value in self.clueDict:
                 reapeated = self.clueDict[value]
                 if reapeated > 1:
                     self.repeatedLettersClue.append(value)
             return self.repeatedLettersClue
 
-        # if we have repeated letters in clue, this function runs
-        # checks if repeated letters in clue words coincide with the one from list
-        # if they do, the word is added to new list
         def filterRiddlewords():
-            """ if we have repeated letters in clue, this function runs
-                checks if repeated letters in clue words coincide with the one from list
-                if they do, the word is added to new list"""
-            # add counters of current words here
+            """If we have repeated letters in clue, adds words with duplicate same letters to riddlewords2"""
             if self.repeatedLettersClue:
                 for word in self.riddlewords:
                     currentclue = Counter(self.clueDict)
@@ -104,8 +90,8 @@ class GamePrep:
 
             return self.riddlewords2
 
-        # deleting all words that have duplicate letters, adding the rest to list:
         def noRepeatedLeteters():
+            """deleting all words that have duplicate letters, adding the rest to list riddleowrds1"""
             for word in self.riddlewords:
                 amount = {}
                 amount.update(Counter(word))
@@ -117,7 +103,6 @@ class GamePrep:
         def get_final_Words():
             """ getting the final list of words to pick from"""
             self.final_riddlewords = list(set(self.riddlewords1).union(set(self.riddlewords2)))
-            # removing clue word from list
             if self.clue in self.final_riddlewords:
                 self.final_riddlewords.remove(self.clue)
 
@@ -139,10 +124,8 @@ class GamePrep:
         if maximum < 4:
             self.generate_word_set()
 
-        # getting  random words to play
         def generate_playwords():
-            #print(self.clue)
-            #print(self.riddlewords2)
+            """Getting random words to start the game """
             if len(self.final_riddlewords) > 6:
                 while len(self.play) < random.randint(4, 7):
                     if maximum < 7:
@@ -163,18 +146,12 @@ class GamePrep:
 
 class Game:
     def __init__(self, play, clue, wordsguessed, playwords, theriddle, score, clueguessed):
-        # list of words still to be guessed
-        self.play = play
-        # main word
-        self.clue = clue
-        # list of all that we guessed
-        self.wordsGuessed = wordsguessed
-        # [..., ....]
-        self.playwords = playwords
-        # G N V I I D type of clue repr
-        self.theriddle = theriddle
-        # bool if we guessed main word
-        self.clueguessed = clueguessed
+        self.play = play  # list of words still to be guessed
+        self.clue = clue  # main word
+        self.wordsGuessed = wordsguessed  # list of all that we guessed
+        self.playwords = playwords  # [..., ....]
+        self.theriddle = theriddle  # G N V I I D type of clue repr
+        self.clueguessed = clueguessed  # bool if we guessed main word
         self.score = score
 
     def show(self):
@@ -184,9 +161,7 @@ class Game:
         print('\n' * 3)
         print("Find all words in crossword which contain these letters:")
         # printing the random letters to make up the clue word from
-
         self.theriddle = (' '.join(random.sample(self.clue, len(self.clue))).upper())
-
         print(self.theriddle)
 
         if self.clue not in self.play:
@@ -199,18 +174,11 @@ class Game:
         return self.play, self.playwords, self.theriddle
 
     def guess_clue(self):
-
         self.clueguessed = True
         return self.clueguessed
 
     def guessGame(self, *args):
         """Main game logic"""
-        def show_score():
-            if self.score is not None:
-                print('Your score: ', self.score)
-            else:
-                print('Your score: 0')
-
         def hint():
             """Gives player a hint"""
             if '.' not in self.play[0]:
@@ -227,6 +195,7 @@ class Game:
         def update():
             self.wordsGuessed.append(guess)
             self.play.remove(guess)
+            final_riddlewords.remove(guess)
             for word in self.playwords:
                 if guess not in self.playwords:
                     if len(word) == len(guess):
@@ -276,10 +245,11 @@ class Game:
             print('Amazing! You found all the words! Your score: ', self.score)
             print('You won! Congratulations!')
 
-# Create instance of game
-G = GamePrep('wordlist.txt', alphabet, difficulty=1)
+
+alphabet = 'abcdefghijklmnopqrstvwuxyz'
+# Creating an instance of a game
+G = GamePrep('wordlist.txt', alphabet)
 GamePrep.generate_word_set(G)
 play, final_riddlewords, clue = GamePrep.setup_game(G)
 g = Game(play=play, clue=clue, wordsguessed=[], playwords=[], theriddle="", score=0, clueguessed=False)
 Game.playGame(g)
-
